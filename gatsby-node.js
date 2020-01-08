@@ -53,6 +53,18 @@ exports.createPages = async ({ graphql, actions }) => {
           }
         }
       }
+      allWordpressPost {
+        edges {
+          node {
+            wordpress_id
+            date(formatString: "Do MMM YYYY HH:mm")
+            title
+            content
+            excerpt
+            slug
+          }
+        }
+      }
     }
   `)
 
@@ -62,7 +74,7 @@ exports.createPages = async ({ graphql, actions }) => {
   }
 
   // Access query results via object destructuring
-  const { allWordpressPage, allWordpressWpPortfolio } = result.data
+  const { allWordpressPage, allWordpressWpPortfolio, allWordpressPost } = result.data
 
   // Create Page pages.
   const pageTemplate = path.resolve(`./src/templates/page.js`)
@@ -87,14 +99,40 @@ exports.createPages = async ({ graphql, actions }) => {
   })
 
   const portfolioTemplate = path.resolve(`./src/templates/portfolio.js`)
-  // We want to create a detailed page for each post node.
-  // The path field stems from the original WordPress link
-  // and we use it for the slug to preserve url structure.
-  // The Post ID is prefixed with 'POST_'
   allWordpressWpPortfolio.edges.forEach(edge => {
     createPage({
       path: edge.node.path,
       component: slash(portfolioTemplate),
+      context: edge.node,
+    })
+  })
+
+  const posts = allWordpressPost.edges
+  const postsPerPage = 2
+  const numberOfPages = Math.ceil(posts.length / postsPerPage)
+  const blogPostTemplate = path.resolve('./src/templates/blogPostList.js')
+
+  Array.from({length: numberOfPages}).forEach((page, index) => {
+      createPage({
+          path: index === 0 ? '/blog' : `/blog/${index + 1}`,
+          component: slash(blogPostTemplate),
+          context: {
+              posts: posts.slice(index * postsPerPage, (index + 1) * postsPerPage),
+              numberOfPages: numberOfPages,
+              currentPage: index + 1
+          }
+      })
+  })
+
+
+  // We want to create a detailed page for each post node.
+  // The path field stems from the original WordPress link
+  // and we use it for the slug to preserve url structure.
+  // The Post ID is prefixed with 'POST_'
+  posts.forEach(edge => {
+    createPage({
+      path: `/post/${edge.node.slug}/`,
+      component: slash(pageTemplate),
       context: edge.node,
     })
   })
