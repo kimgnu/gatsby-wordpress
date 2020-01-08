@@ -26,7 +26,7 @@ const PortfolioItems = () => (
                 node {
                     id
                     title
-                    path
+                    slug 
                     content
                     excerpt
                     featured_media {
@@ -43,7 +43,7 @@ const PortfolioItems = () => (
             <h2>{portfolioItem.node.title}</h2>
             <PortfolioImage src={portfolioItem.node.featured_media.source_url} alt="Thumbnail" />
             <div dangerouslySetInnerHTML={{__html: portfolioItem.node.excerpt}} />
-            <Link to={portfolioItem.node.path}>
+            <Link to={`/portfolio/${portfolioItem.node.slug}`}>
                 Read more
             </Link>
         </PortfolioItem>

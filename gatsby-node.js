@@ -28,7 +28,7 @@ exports.createPages = async ({ graphql, actions }) => {
         edges {
           node {
             id
-            path
+            slug 
             status
             template
             title
@@ -41,7 +41,7 @@ exports.createPages = async ({ graphql, actions }) => {
           node {
             id
             title
-            path
+            slug
             content
             excerpt
             featured_media {
@@ -92,7 +92,7 @@ exports.createPages = async ({ graphql, actions }) => {
       // as a template component. The `context` is
       // optional but is often necessary so the template
       // can query data specific to each page.
-      path: edge.node.path,
+      path: `/${edge.node.slug}`,
       component: slash(edge.node.template === 'portfolio_under_content.php' ? portfolioUnderContentTemplate : pageTemplate),
       context: edge.node,
     })
@@ -101,7 +101,7 @@ exports.createPages = async ({ graphql, actions }) => {
   const portfolioTemplate = path.resolve(`./src/templates/portfolio.js`)
   allWordpressWpPortfolio.edges.forEach(edge => {
     createPage({
-      path: edge.node.path,
+      path: `/portfolio/${edge.node.slug}`,
       component: slash(portfolioTemplate),
       context: edge.node,
     })
